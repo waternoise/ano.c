@@ -1,8 +1,17 @@
 #include <stdio.h>
-#include "sqlite3.h"
+#include "db.h"
 
 int main() {
-  printf("%s\n", "Hello World!");
-  printf("%s :: Testing whether sqlite3 is compiled...\n", SQLITE_VERSION);
-  return 0;
+	DBManager *manager = db_open("example.db");
+	if (!manager) {
+		fprintf(stderr, "Failed to open database\n");
+		return 1;
+	}
+	// Perform database operations...
+	// Delete this: db_initialize(manager);
+	// Not yet: db_reset(manager);
+	// Put here operations, remember to close it after.
+	db_close(manager);
+	return 0;
 }
+
