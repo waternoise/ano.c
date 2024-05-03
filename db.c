@@ -76,6 +76,37 @@ int db_insert_item(DBManager *manager, const char *name, const char *description
 	return 1;
 }
 
+int db_delete_item(DBManager *manager, const char *name) {
+	char *sql = "DELETE FROM items WHERE name = ?;";
+
+	sqlite3_stmt *stmt;
+	int rc = sqlite3_prepare_v2(manager->db, sql, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Error: Failed to prepare SQL statement: %s\n", sqlite3_errmsg(manager->db));
+		return 0;
+	}
+
+	sqlite3_bind_text(stmt, 1, name, -1, SQLITE_STATIC);
+
+	rc = sqlite3_step(stmt);
+	if (rc != SQLITE_DONE) {
+		fprintf(stderr, "Error: Failed to delete item: %s\n", sqlite3_errmsg(manager->db));
+		sqlite3_finalize(stmt);
+		return 0;
+	}
+
+	sqlite3_finalize(stmt);
+
+	if (sqlite3_changes(manager->db) == 0) {
+		printf("Item %s not found in the database.\n", name);
+		return 0;
+	}
+
+	printf("Item %s deleted successfully.\n", name);
+	return 1;
+}
+
+
 // Static functions are like private functions, not intended to be called by the user
 static void db_initialize (DBManager *manager) {
 	char *sql = "CREATE TABLE IF NOT EXISTS items ("

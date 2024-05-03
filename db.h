@@ -12,6 +12,7 @@ DBManager *db_open(const char *filename);
 void db_close(DBManager *manager);
 int db_reset(DBManager *manager);
 int db_insert_item(DBManager *manager, const char *name, const char *description, double price);
+int db_delete_item(DBManager *manager, const char *name);
 // void db_initialize(DBManager *manager);
 
 
