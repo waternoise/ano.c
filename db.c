@@ -106,6 +106,54 @@ int db_delete_item(DBManager *manager, const char *name) {
 	return 1;
 }
 
+void db_list_all_items(DBManager *manager) {
+	char *sql = "SELECT * FROM items;";
+
+	sqlite3_stmt *stmt;
+	int rc = sqlite3_prepare_v2(manager->db, sql, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Error: Failed to prepare SQL statement: %s\n", sqlite3_errmsg(manager->db));
+		return;
+	}
+
+	printf("List of all items:\n");
+	while (sqlite3_step(stmt) == SQLITE_ROW) {
+		printf("Name: %s, Description: %s, Price: %.2f\n",
+				sqlite3_column_text(stmt, 1),
+				sqlite3_column_text(stmt, 2),
+				sqlite3_column_double(stmt, 3));
+	}
+
+	sqlite3_finalize(stmt);
+}
+
+// todo: Change this to specific item lister
+void db_get_item_by_name(DBManager *manager, const char *name) {
+	char *sql = "SELECT * FROM items WHERE name = ?;";
+
+	sqlite3_stmt *stmt;
+	int rc = sqlite3_prepare_v2(manager->db, sql, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Error: Failed to prepare SQL statement: %s\n", sqlite3_errmsg(manager->db));
+		return;
+	}
+
+	sqlite3_bind_text(stmt, 1, name, -1, SQLITE_STATIC);
+
+	printf("Item information for %s:\n", name);
+	if (sqlite3_step(stmt) == SQLITE_ROW) {
+		printf("Name: %s, Description: %s, Price: %.2f\n",
+				sqlite3_column_text(stmt, 1),
+				sqlite3_column_text(stmt, 2),
+				sqlite3_column_double(stmt, 3));
+	}
+	else {
+		printf("Item '%s' not found.\n", name);
+	}
+
+	sqlite3_finalize(stmt);
+}
+
 
 // Static functions are like private functions, not intended to be called by the user
 static void db_initialize (DBManager *manager) {
