@@ -66,6 +66,11 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	// Check first if there are no arguments given except for the item name to be searched for
+	if (optind < argc) {
+		itemName = argv[optind];
+		db_get_item_by_name(manager, itemName);
+	}
 	// Call the appropriate functions based on the flags
 	if (listAllFlag) {
 		db_list_all_items(manager);
